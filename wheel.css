@@ -1,0 +1,52 @@
+*{
+	margin: 0;
+	padding: 0;
+}
+
+html, body{
+	height: 100%;
+	overflow: hidden;
+}
+
+li{
+	list-style: none;
+}
+
+.wheel{
+	width: 100%;
+}
+
+.wheel-pages{
+	width: 100%;
+	font-size: 0;
+}
+
+.wheel-pages .page{
+	position: absolute;
+	width: 100%;
+	transition: height 1s;
+	z-index: -3;
+}
+
+.wheel-indicator{
+	position: fixed;
+	top: 50%;
+	right: 10px;
+	transform: translate(0, -50%);
+	background: rgba(0, 0, 0, 0.1);
+	border-radius: 10px;
+}
+
+.wheel-indicator li{
+	width: 10px;
+	height: 10px;
+	margin: 10px;
+	background: #fff;
+	border: 1px solid #ccc;
+	border-radius: 11px;
+	cursor: pointer;
+}
+
+.wheel-indicator li.active{
+	background: #999
+}
