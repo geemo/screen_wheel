@@ -1,4 +1,48 @@
 ! function() {
+    //lazy load function && event compat code
+    var addEvent = (function(window) {
+        var _eventCompat = function(event) {
+            var type = event.type;
+            if (type === 'DOMMouseScroll' || type === 'mousewheel') {
+                event.delta = event.wheelDelta ? event.wheelDelta / 120 : -(event.detail || 0) / 3;
+            }
+
+            if (event.srcElement && !event.target) {
+                event.target = event.srcElement;
+            }
+
+            if (!event.preventDefault && event.returnValue !== undefined) {
+                event.preventDefault = function() {
+                    event.returnValue = false;
+                };
+            }
+
+            return event;
+        };
+
+        if (window.addEventListener) {
+            return function(elem, type, fn, capture) {
+                if (type.toLowerCase() === 'mousewheel' && /firefox/i.test(navigator.userAgent)) {
+                    type = 'DOMMouseScroll';
+                }
+
+                elem.addEventListener(type, function(event) {
+                    fn.call(elem, _eventCompat(event));
+                }, capture || false);
+            };
+        } else if (window.attachEvent) {
+            return function(elem, type, fn, capture) {
+                elem.attachEvent('on' + type.toLowerCase(), function(event) {
+                    event = event || window.event;
+                    fn.call(elem, _eventCompat(event));
+                });
+            };
+        }
+
+        return function() {};
+
+    })(window);
+
     function ScreenWheel() {
         if (!(this instanceof ScreenWheel)) return new ScreenWheel();
         this.wheel = document.getElementsByClassName('wheel')[0];
@@ -45,32 +89,34 @@
             var self = this;
             for (var len = indicators.length - 1; len >= 0; --len) {
                 (function(idx) {
-                    indicators[idx].onclick = function(e) {
+                    addEvent(indicators[idx], 'click', function(e) {
                         self.changePage(idx);
-                    };
+                    });
                 })(len);
             }
         },
 
         mouseWheelBind: function() {
             var self = this;
-            document.body.onmousewheel = function(e) {
+
+            addEvent(document.body, 'mousewheel', function(e) {
                 if (self.cdFlag) {
-                	self.cdFlag = false;
-                    if (e.wheelDelta > 0) {
-                    	if(self.prePageIdx !== 0) {
-                    		self.changePage(self.prePageIdx - 1);
-                    	}
+                    self.cdFlag = false;
+                    if (e.delta > 0) {
+                        if (self.prePageIdx !== 0) {
+                            self.changePage(self.prePageIdx - 1);
+                        }
                     } else {
-                    	if(self.prePageIdx !== self.pages.length - 1){
-                    		self.changePage(self.prePageIdx + 1);
-                    	}
+                        if (self.prePageIdx !== self.pages.length - 1) {
+                            self.changePage(self.prePageIdx + 1);
+                        }
                     }
-                    setTimeout(function(){
-                    	self.cdFlag = true;
+                    setTimeout(function() {
+                        self.cdFlag = true;
                     }, 800);
                 }
-            };
+            });
+
         },
 
         init: function() {
