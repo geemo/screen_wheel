@@ -22,7 +22,7 @@
 
         if (window.addEventListener) {
             return function(elem, type, fn, capture) {
-                if (type.toLowerCase() === 'mousewheel' && /firefox/i.test(navigator.userAgent)) {
+                if (type === 'mousewheel' && /firefox/i.test(navigator.userAgent)) {
                     type = 'DOMMouseScroll';
                 }
 
@@ -32,7 +32,7 @@
             };
         } else if (window.attachEvent) {
             return function(elem, type, fn, capture) {
-                elem.attachEvent('on' + type.toLowerCase(), function(event) {
+                elem.attachEvent('on' + type, function(event) {
                     event = event || window.event;
                     fn.call(elem, _eventCompat(event));
                 });
